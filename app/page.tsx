@@ -1,9 +1,14 @@
 "use client";
 
-import {useKindeBrowserClient} from "@kinde-oss/kinde-auth-nextjs";
-import {LoginLink} from "@kinde-oss/kinde-auth-nextjs/components";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import {
+  LoginLink,
+  LogoutLink,
+  RegisterLink,
+} from "@kinde-oss/kinde-auth-nextjs/components";
+import Image from "next/image";
 
-export default function ClientPage() {
+export default function Home() {
   const {
     permissions,
     isLoading,
@@ -22,62 +27,28 @@ export default function ClientPage() {
     getIdToken,
     getOrganization,
     getPermissions,
-    getUserOrganizations
+    getUserOrganizations,
   } = useKindeBrowserClient();
 
-  console.log(getPermission("eat:chips"));
-  console.log(getBooleanFlag("flag", false));
-  console.log(getIntegerFlag("eat:chips", 1));
-  console.log(getStringFlag("eat:chips", "ds"));
-  console.log(getFlag("eat:chips", false, "b"));
-
-  console.log("accessToken", accessToken);
-  console.log(getClaim("aud"));
-  if (isLoading) return <div>Loading...</div>;
-
   return (
-    <div className="pt-20">
-      {getPermission("eat:chips")?.isGranted && <h2>YOU CAN EAT CHIPS</h2>}
-      <LoginLink postLoginRedirectURL="/dashboard">Login</LoginLink>
-      <div className="mb-8">
-        <h4 className="text-2xl font-bold dark:text-white mb-2">User</h4>
-
-        <pre className="p-4 rounded bg-slate-950 text-green-300">
-          {JSON.stringify(user, null, 2)}
-        </pre>
+    <>
+      <div className=" flex flex-row">
+        <div className=" w-1/2 h-screen">
+          <img src="/login.png" alt="Your Name" />
+        </div>
+        <div className=" w-1/2 h-screen bg-[#FCFCFC] flex flex-col items-center ">
+          <h1 className=" text-2xl font-bold mt-1">Welcome to Repl</h1>
+          <div className=" flex flex-col justify-center items-center w-full h-screen">
+            <h1 className=" font-medium mb-4">Create a repl account</h1>
+            <div className=" mb-3 w-[58%] h-[5.5%] bg-[#D3D1CF] rounded-md flex justify-center items-center cursor-pointer hover:scale-105 hover:translate-all">
+              <RegisterLink>Register</RegisterLink>
+            </div>
+            <div className=" w-[58%] h-[5.5%] bg-[#D3D1CF] rounded-md flex justify-center items-center cursor-pointer hover:scale-105 hover:translate-all">
+              <LogoutLink>Login</LogoutLink>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div className="mb-8">
-        <h4 className="text-2xl font-bold dark:text-white mb-2">Permissions</h4>
-
-        <pre className="p-4 rounded bg-slate-950 text-green-300">
-          {JSON.stringify(permissions, null, 2)}
-        </pre>
-      </div>
-
-      <div className="mb-8">
-        <h4 className="text-2xl font-bold dark:text-white mb-2">Organization</h4>
-
-        <pre className="p-4 rounded bg-slate-950 text-green-300">
-          {JSON.stringify(organization, null, 2)}
-        </pre>
-      </div>
-
-      <div className="mb-8">
-        <h4 className="text-2xl font-bold dark:text-white mb-2">User organizations</h4>
-
-        <pre className="p-4 rounded bg-slate-950 text-green-300">
-          {JSON.stringify(userOrganizations, null, 2)}
-        </pre>
-      </div>
-
-      <div className="mb-8">
-        <h4 className="text-2xl font-bold dark:text-white mb-2">Access token</h4>
-
-        <pre className="p-4 rounded bg-slate-950 text-green-300">
-          {JSON.stringify(accessToken, null, 2)}
-        </pre>
-      </div>
-    </div>
+    </>
   );
 }
