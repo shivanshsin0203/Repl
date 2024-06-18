@@ -1,11 +1,11 @@
 "use client";
 
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
-import {
-  LoginLink,
-  LogoutLink,
-  RegisterLink,
-} from "@kinde-oss/kinde-auth-nextjs/components";
+import Loader from "@/components/loader";
+import Login from "@/components/loginpage";
+import BentoGridThirdDemo from "@/components/sideGrid";
+import { Vortex } from "@/components/ui/vortex";
+import { LogoutLink, useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+
 import Image from "next/image";
 
 export default function Home() {
@@ -27,28 +27,67 @@ export default function Home() {
     getIdToken,
     getOrganization,
     getPermissions,
-    getUserOrganizations,
+    getUserOrganizations,isAuthenticated
   } = useKindeBrowserClient();
-
-  return (
-    <>
-      <div className=" flex flex-row">
-        <div className=" w-1/2 h-screen">
-          <img src="/login.png" alt="Your Name" />
+  if (isLoading) {
+    return (
+      <div className="relative w-screen h-screen flex justify-center items-center">
+        <div className="absolute inset-0 bg-black blur-sm">
+        <Vortex
+        backgroundColor="black"
+        rangeY={800}
+        particleCount={360}
+        baseHue={120}
+        className="flex flex-col  px-2 md:px-10  py-4 w-screen h-screen"
+      > </Vortex>
         </div>
-        <div className=" w-1/2 h-screen bg-[#FCFCFC] flex flex-col items-center ">
-          <h1 className=" text-2xl font-bold mt-1">Welcome to Repl</h1>
-          <div className=" flex flex-col justify-center items-center w-full h-screen">
-            <h1 className=" font-medium mb-4">Create a repl account</h1>
-            <div className=" mb-3 w-[58%] h-[5.5%] bg-[#D3D1CF] rounded-md flex justify-center items-center cursor-pointer hover:scale-105 hover:translate-all">
-              <RegisterLink>Register</RegisterLink>
-            </div>
-            <div className=" w-[58%] h-[5.5%] bg-[#D3D1CF] rounded-md flex justify-center items-center cursor-pointer hover:scale-105 hover:translate-all">
-              <LogoutLink>Login</LogoutLink>
-            </div>
-          </div>
+        <div className="relative z-10">
+          <Loader />
         </div>
       </div>
+    );
+  }
+  if(!isAuthenticated){
+    return(
+      <Login/>
+    )
+  }
+    return (
+    <>
+    <div className=" w-screen h-screen bg-black">
+    <div className="w-screen h-screen overflow-hidden">
+      <Vortex
+        backgroundColor="black"
+        rangeY={800}
+        particleCount={160}
+        baseHue={120}
+        className="flex flex-col  px-2 md:px-10  py-4 w-screen h-screen"
+      >
+        <h2 className="text-white text-2xl md:text-5xl font-bold text-center mt-4 ">
+          Welcome {user?.given_name} to Repl
+        </h2>
+        <p className="text-white text-sm md:text-xl max-w-xl mt-6 ml-[34%]">
+          Click on create repl do create a new project
+        </p>
+        <div className="flex flex-col sm:flex-row items-center gap-8 mt-6">
+          <button className=" px-4 py-2 bg-green-600 hover:bg-green-700 transition duration-200 rounded-lg text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] ml-[40%] ">
+            Create Repl
+          </button>
+          <button className=" px-4 py-2 border-[1.2px] border-red-700  transition duration-200 rounded-lg text-white shadow-[0px_2px_0px_0px_#FFFFFF40_inset] ">
+            <LogoutLink>Logout</LogoutLink>
+          </button>
+        </div>
+        <div className=" mt-[100px] flex flex-row h-full  ">
+        <div className=" w-2/3">
+        <BentoGridThirdDemo/>
+        </div>
+        <div className=" w-1/3 bg-indigo-800">
+        
+        </div>
+        </div>
+      </Vortex>
+    </div>
+    </div>
     </>
   );
 }
