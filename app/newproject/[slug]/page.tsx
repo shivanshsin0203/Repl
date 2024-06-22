@@ -1,6 +1,11 @@
+import Terminal from "@/components/terminal"
+
 const Project = () => {
   return (
-    <div>Project</div>
+    <div className=" w-screen h-screen">
+      <Terminal/>
+    </div>
+
   )
 }
 
