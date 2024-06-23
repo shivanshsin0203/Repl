@@ -5,7 +5,7 @@ import axios from 'axios';
 import { FaFolder, FaJs, FaHtml5, FaCss3Alt } from 'react-icons/fa';
 import { BiSolidFileJson } from "react-icons/bi";
 import { AiOutlineFile } from 'react-icons/ai';
-
+import socket from '@/utils/socket';
 interface DirectoryTreeProps {
   selectedFile: string | null;
   onFileClick: (filePath: string) => void;
@@ -14,7 +14,16 @@ interface DirectoryTreeProps {
 function DirectoryTree({ selectedFile, onFileClick }: DirectoryTreeProps) {
   const [tree, setTree] = useState(null);
   const [error, setError] = useState<String | null>(null);
-
+  const [socketData, setSocketData] = useState<any>(null);
+  const fetchDataTree = async () => {
+    try {
+      const response = await axios.get('http://localhost:3002/filetree');
+      setTree(response.data);
+    } catch (err) {
+      console.error('Error fetching directory tree:', err);
+      setError('Failed to load directory tree');
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -27,8 +36,17 @@ function DirectoryTree({ selectedFile, onFileClick }: DirectoryTreeProps) {
     };
 
     fetchData();
+    setSocketData(socket);
   }, []);
-
+  
+  useEffect(() => {
+    if (socketData) {
+      socketData.on('file:refresh', (data: any) => {
+       
+        fetchDataTree();
+      });
+    }}, [socketData]);
+ 
   if (error) {
     return <div>{error}</div>;
   }
