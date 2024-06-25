@@ -8,18 +8,21 @@ import { GoSidebarExpand } from "react-icons/go";
 import { GoSidebarCollapse } from "react-icons/go";
 import { FaNodeJs } from "react-icons/fa";
 import { IoHomeOutline } from "react-icons/io5";
-import { VscRunBelow } from "react-icons/vsc";
+import { VscDebugStop, VscRunBelow } from "react-icons/vsc";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
 import { getFileMode } from "@/utils/getfilemode";
 import { GetHeader } from "@/components/header";
+import { RiComputerLine } from "react-icons/ri";
 import socket from "@/utils/socket";
 
 const Project = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | undefined>("");
   const [showTree, setShowTree] = useState<boolean>(true);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [livePreviewUrl, setLivePreviewUrl] = useState<string | null>(null);
   const handleFileClick = async (filePath: string) => {
     setSelectedFile(filePath);
     try {
@@ -35,6 +38,25 @@ const Project = () => {
   const handleCodeChange = (value: string) => {
     socket.emit("file:change", { path: selectedFile, content: value });
   }
+  const handleRunCode = async () => {
+    try {
+      const response = await axios.post('http://localhost:3002/run');
+      setLivePreviewUrl(response.data.url);
+      setIsRunning(true);
+    } catch (err) {
+      console.error("Error running code:", err);
+    }
+  };
+
+  const handleStopCode = async () => {
+    try {
+      await axios.post('http://localhost:3002/stop');
+      setLivePreviewUrl(null);
+      setIsRunning(false);
+    } catch (err) {
+      console.error("Error stopping code:", err);
+    }
+  };
   return (
     <div className="w-screen h-screen bg-zinc-800 flex flex-col overflow-hidden ">
       <div className=" h-[6%] w-[100%] flex flex-row p-2  items-center">
@@ -48,10 +70,13 @@ const Project = () => {
           <FaNodeJs className="text-2x text-green-600 bg-green-900 rounded-sm" />
           <h2 className="text-white text-sm">Node.js Project</h2>
         </div>
-        <div className=" ml-[40%] flex space-x-1 w-fit rounded-lg bg-green-700 p-1 justify-center items-center hover:scale-105 cursor-pointer">
-             <VscRunBelow className="text-xl text-green-400" />
-              <p className=" text-green-400 text-sm">Run Code</p>
-          </div>
+        <div
+          className={`ml-[40%] flex space-x-1 w-fit rounded-lg ${isRunning ? 'bg-red-700' : 'bg-green-700'} p-1 justify-center items-center hover:scale-105 cursor-pointer`}
+          onClick={isRunning ? handleStopCode : handleRunCode}
+        >
+          {isRunning ? <VscDebugStop className="text-xl text-red-400" /> : <VscRunBelow className="text-xl text-green-400" />}
+          <p className={`text-${isRunning ? 'red' : 'green'}-400 text-sm`}>{isRunning ? 'Stop Code' : 'Run Code'}</p>
+        </div>
       </div>
       <div className=" flex flex-row h-[94%] w-[100%]">
       <div className={`w-[18%] bg-[#0D1525] p-4 ${showTree ?'':'hidden'}  `}>
@@ -86,7 +111,13 @@ const Project = () => {
         </div>
       </div>
       <div className="w-[40%] h-screen bg-slate-600 flex flex-col">
-        <div className="h-[40%] w-full bg-[#0D1525]"></div>
+        <div className="h-[40%] w-full bg-white">
+        {livePreviewUrl ? <iframe src={livePreviewUrl} className="w-full h-full" />:<div className=" w-[100%] h-[100%] flex flex-col bg-[#0D1525] text-white items-center space-y-4 p-4">
+          <p className=" text-[5rem]"><RiComputerLine/></p>
+          <p className=" text-xl font-semibold">Click on the run code to open live preview</p>
+          <p className=" text-md">Dont change app.listen function in index.js  </p>
+          </div>}
+        </div>
         <div className="h-[60%] w-full flex-1 overflow-x-hidden overflow-y-auto">
           <Terminal />
         </div>
