@@ -112,7 +112,7 @@ const Project = () => {
       </div>
       <div className="w-[40%] h-screen bg-slate-600 flex flex-col">
         <div className="h-[40%] w-full bg-white">
-        {livePreviewUrl ? <iframe src={livePreviewUrl} className="w-full h-full" />:<div className=" w-[100%] h-[100%] flex flex-col bg-[#0D1525] text-white items-center space-y-4 p-4">
+        {livePreviewUrl ? <iframe src={livePreviewUrl} className="w-full h-full" />:<div className=" w-[100%] h-[100%] flex flex-col bg-[#0D1525] text-white items-center justify-center space-y-4 p-4">
           <p className=" text-[5rem]"><RiComputerLine/></p>
           <p className=" text-xl font-semibold">Click on the run code to open live preview</p>
           <p className=" text-md">Dont change app.listen function in index.js  </p>
