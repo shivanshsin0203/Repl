@@ -15,19 +15,35 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import { getFileMode } from "@/utils/getfilemode";
 import { GetHeader } from "@/components/header";
 import { RiComputerLine } from "react-icons/ri";
-import socket from "@/utils/socket";
+import { PortsProvider } from "@/utils/portsContext";
+import { createSocket } from "@/utils/socket";
 
-const Project = () => {
+const Project = ({ params }: { params: { slug: string } }) => {
+  const [port3002, port8000] = params.slug.split('%2C').map(Number);
+  console.log(params.slug);
+  console.log(port3002, port8000);
+  const dockerUrl=`http://localhost:${port3002}`;
+  console.log(dockerUrl);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | undefined>("");
+  const [socket, setSocket] = useState<any>(null)
   const [showTree, setShowTree] = useState<boolean>(true);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [livePreviewUrl, setLivePreviewUrl] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const newSocket = createSocket(port3002);
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.close();
+    };
+  }, [port3002]);
   const handleFileClick = async (filePath: string) => {
     setSelectedFile(filePath);
     try {
       const response = await axios.get(
-        `http://localhost:3002/filecontent?path=${encodeURIComponent(filePath)}`
+        `${dockerUrl}/filecontent?path=${encodeURIComponent(filePath)}`
       );
       setFileContent(response.data.content);
     } catch (err) {
@@ -37,11 +53,12 @@ const Project = () => {
   };
   const handleCodeChange = (value: string) => {
     socket.emit("file:change", { path: selectedFile, content: value });
+    setFileContent(value);
   }
   const handleRunCode = async () => {
     try {
-      const response = await axios.post('http://localhost:3002/run');
-      setLivePreviewUrl(response.data.url);
+      const response = await axios.post(`${dockerUrl}/run`);
+      setLivePreviewUrl(`http://localhost:${port8000}`);
       setIsRunning(true);
     } catch (err) {
       console.error("Error running code:", err);
@@ -50,7 +67,7 @@ const Project = () => {
 
   const handleStopCode = async () => {
     try {
-      await axios.post('http://localhost:3002/stop');
+      await axios.post(`${dockerUrl}/stop`);
       setLivePreviewUrl(null);
       setIsRunning(false);
     } catch (err) {
@@ -58,6 +75,7 @@ const Project = () => {
     }
   };
   return (
+    <PortsProvider port3002={port3002} port8000={port8000}>
     <div className="w-screen h-screen bg-zinc-800 flex flex-col overflow-hidden ">
       <div className=" h-[6%] w-[100%] flex flex-row p-2  items-center">
         {showTree ? (
@@ -80,7 +98,7 @@ const Project = () => {
       </div>
       <div className=" flex flex-row h-[94%] w-[100%]">
       <div className={`w-[18%] bg-[#0D1525] p-4 ${showTree ?'':'hidden'}  `}>
-        <DirectoryTree selectedFile={selectedFile} onFileClick={handleFileClick} />
+        <DirectoryTree socket={socket} selectedFile={selectedFile} onFileClick={handleFileClick} />
       </div>
       <div className={` bg-[#272823] flex flex-col mb-2 ${showTree ?' w-[42%]':' w-[63%]'}`}>
         <GetHeader selectedFile={selectedFile} className=" mb-2" />
@@ -119,11 +137,12 @@ const Project = () => {
           </div>}
         </div>
         <div className="h-[60%] w-full flex-1 overflow-x-hidden overflow-y-auto">
-          <Terminal />
+          <Terminal socket={socket} />
         </div>
       </div>
       </div>
     </div>
+    </PortsProvider>
   );
 };
 

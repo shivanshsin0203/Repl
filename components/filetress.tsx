@@ -5,29 +5,33 @@ import axios from 'axios';
 import { FaFolder, FaJs, FaHtml5, FaCss3Alt } from 'react-icons/fa';
 import { BiSolidFileJson } from "react-icons/bi";
 import { AiOutlineFile } from 'react-icons/ai';
-import socket from '@/utils/socket';
+import { usePorts } from '@/utils/portsContext';
+
 interface DirectoryTreeProps {
+  socket: any;
   selectedFile: string | null;
   onFileClick: (filePath: string) => void;
 }
 
-function DirectoryTree({ selectedFile, onFileClick }: DirectoryTreeProps) {
+function DirectoryTree({ socket, selectedFile, onFileClick }: DirectoryTreeProps) {
   const [tree, setTree] = useState(null);
   const [error, setError] = useState<String | null>(null);
-  const [socketData, setSocketData] = useState<any>(null);
+  const { port3002 } = usePorts();
+
   const fetchDataTree = async () => {
     try {
-      const response = await axios.get('http://localhost:3002/filetree');
+      const response = await axios.get(`http://localhost:${port3002}/filetree`);
       setTree(response.data);
     } catch (err) {
       console.error('Error fetching directory tree:', err);
       setError('Failed to load directory tree');
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3002/filetree');
+        const response = await axios.get(`http://localhost:${port3002}/filetree`);
         setTree(response.data);
       } catch (err) {
         console.error('Error fetching directory tree:', err);
@@ -36,17 +40,16 @@ function DirectoryTree({ selectedFile, onFileClick }: DirectoryTreeProps) {
     };
 
     fetchData();
-    setSocketData(socket);
-  }, []);
-  
+  }, [port3002]);
+
   useEffect(() => {
-    if (socketData) {
-      socketData.on('file:refresh', (data: any) => {
-       
+    if (socket) {
+      socket.on('file:refresh', (data: any) => {
         fetchDataTree();
       });
-    }}, [socketData]);
- 
+    }
+  }, [socket]);
+
   if (error) {
     return <div>{error}</div>;
   }

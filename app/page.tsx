@@ -70,7 +70,8 @@ export default function Home() {
     });
 
     if (response.status === 200) {
-      router.push(`/newproject/${projectId}`);
+      console.log(response.data.ports.port3002);
+      router.push(`/newproject/${response.data.ports.port3002},${response.data.ports.port8000}`);
     }
     setLoading(false);
   };

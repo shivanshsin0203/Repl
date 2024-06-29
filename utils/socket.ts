@@ -1,5 +1,5 @@
-import { io } from 'socket.io-client'
+import io from "socket.io-client";
 
-const socket = io('http://localhost:3002')
-
-export default socket
+export const createSocket = (port3002: number) => {
+  return io(`http://localhost:${port3002}`);
+};
