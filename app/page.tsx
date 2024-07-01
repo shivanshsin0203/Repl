@@ -70,8 +70,8 @@ export default function Home() {
     });
 
     if (response.status === 200) {
-      console.log(response.data.ports.port3002);
-      router.push(`/newproject/${response.data.ports.port3002},${response.data.ports.port8000}`);
+      console.log(response.data);
+      router.push(`/newproject/${response.data.ports.port3002},${response.data.ports.port8000},${response.data.dockerId}`);
     }
     setLoading(false);
   };
