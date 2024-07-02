@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaFolder, FaJs, FaHtml5, FaCss3Alt } from 'react-icons/fa';
+import { FaFolder, FaJs, FaHtml5, FaCss3Alt, FaReact } from 'react-icons/fa';
 import { BiSolidFileJson } from "react-icons/bi";
 import { AiOutlineFile } from 'react-icons/ai';
 import { usePorts } from '@/utils/portsContext';
+import { TbFileTypeSvg } from 'react-icons/tb';
 
 interface DirectoryTreeProps {
   socket: any;
@@ -74,6 +75,10 @@ function getIcon(name: string) {
       return <FaHtml5 className="text-orange-500" />;
     case 'css':
       return <FaCss3Alt className="text-blue-500" />;
+    case 'jsx':
+       return <FaReact className="text-blue-700" />;
+    case 'svg':
+       return <TbFileTypeSvg className="text-pink-600" />;
     default:
       return <AiOutlineFile className="text-gray-400" />;
   }

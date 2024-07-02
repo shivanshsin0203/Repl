@@ -16,11 +16,12 @@ import { GetHeader } from "@/components/header";
 import { RiComputerLine } from "react-icons/ri";
 import { PortsProvider } from "@/utils/portsContext";
 import { createSocket } from "@/utils/socket";
+import { SiTicktick } from "react-icons/si";
 
 const Project = ({ params }: { params: { slug: string } }) => {
-  const [port3002, port8000, dockerId] = params.slug.split('%2C').map(String);
+  const [port3002, port8000, framework,dockerId] = params.slug.split('%2C').map(String);
   console.log(params.slug);
-  console.log(port3002, port8000,dockerId);
+  console.log(port3002, port8000, dockerId);
   const dockerUrl = `http://localhost:${port3002}`;
   console.log(dockerUrl);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -29,7 +30,6 @@ const Project = ({ params }: { params: { slug: string } }) => {
   const [showTree, setShowTree] = useState<boolean>(true);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [livePreviewUrl, setLivePreviewUrl] = useState<string | null>(null);
-
 
   useEffect(() => {
     const newSocket = createSocket(port3002);
@@ -84,7 +84,10 @@ const Project = ({ params }: { params: { slug: string } }) => {
       console.error("Error stopping code:", err);
     }
   };
-
+  
+  const openInNewTab = (url: any) => {
+    window.open(url, '_blank');
+  };
   return (
     <PortsProvider port3002={port3002} port8000={port8000}>
       <div className="w-screen h-screen bg-zinc-800 flex flex-col overflow-hidden ">
@@ -97,7 +100,7 @@ const Project = ({ params }: { params: { slug: string } }) => {
           <IoHomeOutline className="text-xl text-white" />
           <div className=" mr-2 ml-2 flex flex-row space-x-1 justify-center items-center">
             <FaNodeJs className="text-2x text-green-600 bg-green-900 rounded-sm" />
-            <h2 className="text-white text-sm">Node.js Project</h2>
+            <h2 className="text-white text-sm">{framework==='Node.js'?'Node js Project':'React js Project'}</h2>
           </div>
           <div
             className={`ml-[40%] flex space-x-1 w-fit rounded-lg ${isRunning ? 'bg-red-700' : 'bg-green-700'} p-1 justify-center items-center hover:scale-105 cursor-pointer`}
@@ -115,7 +118,7 @@ const Project = ({ params }: { params: { slug: string } }) => {
             <GetHeader selectedFile={selectedFile} className=" mb-2" />
             <div className="flex-1">
               <AceEditor
-                placeholder="Placeholder Text"
+                placeholder="Click on any file to start coding..."
                 mode={getFileMode({ selectedFile })}
                 onChange={(value) => handleCodeChange(value)}
                 theme="monokai"
@@ -141,11 +144,26 @@ const Project = ({ params }: { params: { slug: string } }) => {
           </div>
           <div className="w-[40%] h-screen bg-slate-600 flex flex-col">
             <div className="h-[40%] w-full bg-white">
-              {livePreviewUrl ? <iframe src={livePreviewUrl} className="w-full h-full" /> : <div className=" w-[100%] h-[100%] flex flex-col bg-[#0D1525] text-white items-center justify-center space-y-4 p-4">
-                <p className=" text-[5rem]"><RiComputerLine /></p>
-                <p className=" text-xl font-semibold">Click on the run code to open live preview</p>
-                <p className=" text-md">Dont change app.listen function in index.js  </p>
-              </div>}
+              {isRunning && framework === 'React.js' ? (
+                <div className="w-[100%] h-[100%] flex flex-col bg-[#0D1525] text-white items-center justify-center space-y-4 p-4">
+                <p className="text-[5rem] text-green-600"><SiTicktick /></p>
+                <p className="text-md cursor-pointer text-blue-500 underline" onClick={() => openInNewTab(livePreviewUrl)}>
+                    Code compiled. Click here to preview.
+                  </p>
+
+                <p className="text-md">{`Your website is live on ${livePreviewUrl}`} </p>
+              </div>
+              ) : (
+                livePreviewUrl ? (
+                  <iframe src={livePreviewUrl} className="w-full h-full" />
+                ) : (
+                  <div className="w-[100%] h-[100%] flex flex-col bg-[#0D1525] text-white items-center justify-center space-y-4 p-4">
+                    <p className="text-[5rem]"><RiComputerLine /></p>
+                    <p className="text-xl font-semibold">Click on the run code to open live preview</p>
+                    <p className="text-md">Dont change app.listen function in index.js</p>
+                  </div>
+                )
+              )}
             </div>
             <div className="h-[60%] w-full flex-1 overflow-x-hidden overflow-y-auto">
               <Terminal socket={socket} />

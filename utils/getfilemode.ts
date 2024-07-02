@@ -7,6 +7,8 @@ export const getFileMode = ({ selectedFile }:any) => {
     switch (extension) {
       case "js":
         return "javascript";
+        case "jsx":
+          return "javascript";
       case "py":
         return "python";
       case "java":
