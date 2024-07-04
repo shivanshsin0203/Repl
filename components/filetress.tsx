@@ -14,54 +14,63 @@ interface DirectoryTreeProps {
   onFileClick: (filePath: string) => void;
 }
 
+interface TreeNodeProps {
+  node: TreeNode;
+  onFileClick: (filePath: string) => void;
+  selectedFile: string | null;
+}
+
+interface TreeNode {
+  path: string;
+  name: string;
+  type: 'file' | 'folder';
+  children?: TreeNode[];
+}
+
 function DirectoryTree({ socket, selectedFile, onFileClick }: DirectoryTreeProps) {
-  const [tree, setTree] = useState(null);
-  const [error, setError] = useState<String | null>(null);
+  const [tree, setTree] = useState<TreeNode | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const { port3002 } = usePorts();
 
   const fetchDataTree = async () => {
     try {
       const response = await axios.get(`http://localhost:${port3002}/filetree`);
       setTree(response.data);
+      setLoading(false);
     } catch (err) {
       console.error('Error fetching directory tree:', err);
-      setError('Failed to load directory tree');
+      setError('Failed to load directory tree Please Create a new repl');
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:${port3002}/filetree`);
-        setTree(response.data);
-      } catch (err) {
-        console.error('Error fetching directory tree:', err);
-        setError('Failed to load directory tree');
-      }
-    };
-
-    fetchData();
+    fetchDataTree();
   }, [port3002]);
 
   useEffect(() => {
     if (socket) {
-      socket.on('file:refresh', (data: any) => {
-        fetchDataTree();
-      });
+      socket.on('file:refresh', fetchDataTree);
     }
+    return () => {
+      if (socket) {
+        socket.off('file:refresh', fetchDataTree);
+      }
+    };
   }, [socket]);
 
+  if (loading) {
+    return <div className='text-white'>Loading...</div>;
+  }
+
   if (error) {
-    return <div>{error}</div>;
+    return <div className='text-red-500'>{error}</div>;
   }
 
   return tree ? (
-    <TreeNode 
-      node={tree} 
-      onFileClick={onFileClick} 
-      selectedFile={selectedFile} 
-    />
-  ) : <div className='text-white'>Loading...</div>;
+    <TreeNode node={tree} onFileClick={onFileClick} selectedFile={selectedFile} />
+  ) : null;
 }
 
 function getIcon(name: string) {
@@ -76,18 +85,12 @@ function getIcon(name: string) {
     case 'css':
       return <FaCss3Alt className="text-blue-500" />;
     case 'jsx':
-       return <FaReact className="text-blue-700" />;
+      return <FaReact className="text-blue-700" />;
     case 'svg':
-       return <TbFileTypeSvg className="text-pink-600" />;
+      return <TbFileTypeSvg className="text-pink-600" />;
     default:
       return <AiOutlineFile className="text-gray-400" />;
   }
-}
-
-interface TreeNodeProps {
-  node: any;
-  onFileClick: (filePath: string) => void;
-  selectedFile: string | null;
 }
 
 function TreeNode({ node, onFileClick, selectedFile }: TreeNodeProps) {
@@ -99,7 +102,7 @@ function TreeNode({ node, onFileClick, selectedFile }: TreeNodeProps) {
           <span>{node.name}</span>
         </div>
         <div style={{ paddingLeft: 20 }}>
-          {node.children.map((child: any, index: number) => (
+          {node.children?.map((child, index) => (
             <TreeNode
               key={index}
               node={child}
@@ -111,7 +114,7 @@ function TreeNode({ node, onFileClick, selectedFile }: TreeNodeProps) {
       </div>
     );
   } else {
-    const filePath = node.path; 
+    const filePath = node.path;
     return (
       <div
         className={`p-1 flex items-center cursor-pointer hover:bg-gray-700 mb-1 rounded-lg ${

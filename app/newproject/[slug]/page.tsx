@@ -88,16 +88,17 @@ const Project = ({ params }: { params: { slug: string } }) => {
   const openInNewTab = (url: any) => {
     window.open(url, '_blank');
   };
+
   return (
     <PortsProvider port3002={port3002} port8000={port8000}>
       <div className="w-screen h-screen bg-zinc-800 flex flex-col overflow-hidden ">
         <div className=" h-[6%] w-[100%] flex flex-row p-2  items-center">
           {showTree ? (
-            <GoSidebarCollapse className=" mr-2 ml-2 text-xl cursor-pointer text-white" onClick={() => setShowTree(false)} />
+            <GoSidebarCollapse className=" mr-2 ml-2 text-xl cursor-pointer text-white hover:scale-105 hover:text-slate-300" onClick={() => setShowTree(false)} />
           ) : (
-            <GoSidebarExpand className=" mr-2 ml-2 text-xl text-white" onClick={() => setShowTree(true)} />
+            <GoSidebarExpand className=" mr-2 ml-2 text-xl cursor-pointer text-white  hover:scale-105 hover:text-slate-300" onClick={() => setShowTree(true)} />
           )}
-          <IoHomeOutline className="text-xl text-white" />
+          <IoHomeOutline className="text-xl text-white cursor-pointer hover:scale-105 hover:text-slate-300" onClick={()=>openInNewTab('http://localhost:3000')} />
           <div className=" mr-2 ml-2 flex flex-row space-x-1 justify-center items-center">
             <FaNodeJs className="text-2x text-green-600 bg-green-900 rounded-sm" />
             <h2 className="text-white text-sm">{framework==='Node.js'?'Node js Project':'React js Project'}</h2>
