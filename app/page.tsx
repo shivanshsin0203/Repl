@@ -26,6 +26,7 @@ export default function Home() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedFramework, setSelectedFramework] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [projLoading, setprojLoading] = useState<boolean>(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
 
@@ -87,7 +88,7 @@ export default function Home() {
   };
 
   const handleOpenProject = async(projectId: string, framework: string): Promise<void> => {
-    setLoading(true);
+    setprojLoading(true);
     const email = user?.email;
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/startproject`,
@@ -103,7 +104,7 @@ export default function Home() {
       router.replace(
         `/newproject/${response.data.ports.port3002},${response.data.ports.port8000},${selectedFramework},${projectId}`
       );
-      setLoading(false);
+      
     }
   };
 
@@ -113,7 +114,7 @@ export default function Home() {
     }
   }, [user]);
 
-  if (isLoading) {
+  if (isLoading||projLoading) {
     return (
       <div className="relative w-screen h-screen flex justify-center items-center bg-slate-950">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]"></div>
