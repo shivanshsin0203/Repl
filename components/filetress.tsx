@@ -35,7 +35,7 @@ function DirectoryTree({ socket, selectedFile, onFileClick }: DirectoryTreeProps
 
   const fetchDataTree = async () => {
     try {
-      const response = await axios.get(`http://localhost:${port3002}/filetree`);
+      const response = await axios.get(`http://35.154.131.67:${port3002}/filetree`);
       setTree(response.data);
       setLoading(false);
     } catch (err) {

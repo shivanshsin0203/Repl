@@ -22,7 +22,7 @@ const Project = ({ params }: { params: { slug: string } }) => {
   const [port3002, port8000, framework,dockerId] = params.slug.split('%2C').map(String);
   console.log(params.slug);
   console.log(port3002, port8000, dockerId);
-  const dockerUrl = `http://localhost:${port3002}`;
+  const dockerUrl = `http://35.154.131.67:${port3002}`;
   console.log(dockerUrl);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | undefined>("");
@@ -68,7 +68,7 @@ const Project = ({ params }: { params: { slug: string } }) => {
   const handleRunCode = async () => {
     try {
       const response = await axios.post(`${dockerUrl}/run`);
-      setLivePreviewUrl(`http://localhost:${port8000}`);
+      setLivePreviewUrl(`http://35.154.131.67:${port8000}`);
       setIsRunning(true);
     } catch (err) {
       console.error("Error running code:", err);
@@ -98,7 +98,7 @@ const Project = ({ params }: { params: { slug: string } }) => {
           ) : (
             <GoSidebarExpand className=" mr-2 ml-2 text-xl cursor-pointer text-white  hover:scale-105 hover:text-slate-300" onClick={() => setShowTree(true)} />
           )}
-          <IoHomeOutline className="text-xl text-white cursor-pointer hover:scale-105 hover:text-slate-300" onClick={()=>openInNewTab('http://localhost:3000')} />
+          <IoHomeOutline className="text-xl text-white cursor-pointer hover:scale-105 hover:text-slate-300" onClick={()=>openInNewTab('http://35.154.131.67:3000')} />
           <div className=" mr-2 ml-2 flex flex-row space-x-1 justify-center items-center">
             <FaNodeJs className="text-2x text-green-600 bg-green-900 rounded-sm" />
             <h2 className="text-white text-sm">{framework==='Node.js'?'Node js Project':'React js Project'}</h2>

@@ -54,7 +54,7 @@ export default function Home() {
     const projectId = generateRandomString();
     const email = user?.email;
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/startproject`,
+      `http://35.154.131.67:3001/startproject`,
       {
         projectId: projectId,
         email: email,
@@ -74,7 +74,7 @@ export default function Home() {
   const fetchProjects = async (): Promise<void> => {
     try {
       const response = await axios.post<Project[]>(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/getprojects`,
+        `http://35.154.131.67:3001/getprojects`,
         {
           email: user?.email,
         }
@@ -91,7 +91,7 @@ export default function Home() {
     setprojLoading(true);
     const email = user?.email;
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/startproject`,
+      `http://35.154.131.67:3001/startproject`,
       {
         projectId: projectId,
         email: email,
